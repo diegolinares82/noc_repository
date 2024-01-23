@@ -1,5 +1,5 @@
-import { LogEntity, LogEntityOptions, LogSeverityLevel } from '../entities/log.entity';
-import { LogRepository } from "../repository/log.repository";
+import { LogEntity, LogEntityOptions, LogSeverityLevel } from '../../entities/log.entity';
+import { LogRepository } from "../../repository/log.repository";
 
 
 interface CheckServiceUseCase {
