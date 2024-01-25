@@ -1,8 +1,8 @@
-import { LogEntity, LogEntityOptions, LogSeverityLevel } from "../entities/log.entity";
-import { LogRepository } from "../repository/log.repository";
+import { LogEntity, LogEntityOptions, LogSeverityLevel } from '../../entities/log.entity';
+import { LogRepository } from "../../repository/log.repository";
 
 
-interface CheckServiceUseCase {
+interface CheckServiceUseCaseMultipleUseCase {
   execute( url: string ):Promise<boolean>;
 }
 
@@ -13,14 +13,20 @@ type ErrorCallback = (( error: string ) => void) | undefined;
 
 
 
-export class CheckService implements CheckServiceUseCase {
+export class CheckServiceMultiple implements CheckServiceUseCaseMultipleUseCase {
 
   constructor(
-    private readonly logRepository: LogRepository,
+    private readonly logRepository: LogRepository[],
     private readonly successCallback: SuccessCallback,
     private readonly errorCallback: ErrorCallback
   ) {}
 
+
+  private callLogs(log:LogEntity){
+    this.logRepository.forEach(logRepository=>{
+      logRepository.saveLog(log);
+    })
+  }
 
   public async execute( url: string ): Promise<boolean> {
 
@@ -29,27 +35,29 @@ export class CheckService implements CheckServiceUseCase {
       if ( !req.ok ) {
         throw new Error( `Error on check service ${ url }` );
       }
+
       let lowOption:LogEntityOptions={
         level : LogSeverityLevel.low,
         message: `Service ${ url } working`,
         origin:'check-service'
       };
-
-      const log = new LogEntity(lowOption );
-      this.logRepository.saveLog( log );
+      
+      const log = new LogEntity(lowOption);
+      this.callLogs( log );
       this.successCallback && this.successCallback();
 
       return true;
     } catch (error) {
       const errorMessage = `${url} is not ok. ${ error }`;
-      let lowOption:LogEntityOptions={
+      let highOption:LogEntityOptions={
         level : LogSeverityLevel.high,
-        message: `Service ${ url } not working`,
+        message: errorMessage,
         origin:'check-service'
       };
       
-      const log = new LogEntity( lowOption);
-      this.logRepository.saveLog(log);
+      
+      const log = new LogEntity(highOption );
+      this.callLogs(log);
       
       this.errorCallback && this.errorCallback( errorMessage );
 

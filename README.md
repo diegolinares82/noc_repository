@@ -11,3 +11,8 @@ PROD=false
 
 ``
 3. Ejecutar el comando ```npm install```
+
+4.Levantar las bases de datos con el comando    
+    ``
+    docker compose up -d
+    ``
