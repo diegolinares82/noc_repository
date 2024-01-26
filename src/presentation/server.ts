@@ -9,14 +9,19 @@ import { SendEmailLogs } from '../domain/use-cases/email/send-email.logs';
 import { MongoLogDatSource } from '../infraestructure/datasources/mongo-log.datsource';
 import { LogSeverityLevel } from '../domain/entities/log.entity';
 import { PostgreLogDataSource } from '../infraestructure/datasources/postgres-log.datasource';
+import { CheckServiceMultiple } from '../domain/use-cases/checks/check-service-multiple';
 
 const emailService= new EmailService();
 
-const LogRepository = new LogRepositoryImpl(
-    //new FileSystemDataSource()
-   new MongoLogDatSource()
-   //new PostgreLogDataSource()
-)
+const fsLogRepository = new LogRepositoryImpl(
+    new FileSystemDataSource(),
+  );
+  const mongoLogRepository = new LogRepositoryImpl(
+    new MongoLogDatSource(),
+  );
+  const postgresLogRepository = new LogRepositoryImpl(
+    new PostgreLogDataSource(),
+  );
 export class Server{
     public static async start(){
         console.log('Server started...');
@@ -43,8 +48,8 @@ export class Server{
              ()=>{
            // new CheckService().execute('https://www.google.com/');
              const url='https://www.google55555.com/';
-              new CheckService(
-               LogRepository,
+              new CheckServiceMultiple(
+               [fsLogRepository, postgresLogRepository, mongoLogRepository],
                   ()=>console.log('sucess'),
                   (error)=>console.log(error),
               ).execute(url);
