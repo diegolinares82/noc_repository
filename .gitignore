@@ -11,3 +11,8 @@ logs/
 mongo/
 
 postgres/
+
+/mongo
+/postgres
+/mongo-test
+/postgres-test
